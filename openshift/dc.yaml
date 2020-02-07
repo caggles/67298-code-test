@@ -138,16 +138,16 @@ parameters:
     value: "netapp-file-standard"
 
 objects:
-#  - apiVersion: v1
-#    kind: ConfigMap
-#    metadata:
-#      name: rocketchat-config
-#    data:
-#      #Admin user
-#      ADMIN_USERNAME: "admin"
-#      ADMIN_PASS: "${ROCKETCHAT_ADMIN_PASSWORD}"
-#      # Messaging Settings
-#      OVERWRITE_SETTING_Message_AllowSnippeting: "True"
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: rocketchat-config
+    data:
+      #Admin user
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASS: "${ROCKETCHAT_ADMIN_PASSWORD}"
+      # Messaging Settings
+      OVERWRITE_SETTING_Message_AllowSnippeting: "True"
 
   - apiVersion: v1
     kind: Secret
