@@ -135,7 +135,7 @@ parameters:
     description: The Storage Class for the MongoDB
     displayName: Storage Class for MongoDB
     required: true
-    value: "netapp-file"
+    value: "netapp-file-standard"
 
 objects:
 #  - apiVersion: v1
