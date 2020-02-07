@@ -386,9 +386,9 @@ objects:
                   name: rocketchat-config
             image: "${ROCKETCHAT_IMAGE_REGISTRY}:${ROCKETCHAT_IMAGE_TAG}"
             imagePullPolicy: Always
-            volumeMounts:
-              - name: rocketchat-uploads
-                mountPath: /app/uploads
+#            volumeMounts:
+#              - name: rocketchat-uploads
+#                mountPath: /app/uploads
             name: "${APPLICATION_NAME}"
             ports:
             - containerPort: 3000
