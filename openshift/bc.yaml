@@ -1,0 +1,26 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: rocketchat
+  annotations:
+    description: "Rocketchat and Mongo for Cailey's Code Test"
+
+parameters:
+  - description: The name of the application
+    displayName: Name
+    name: NAME
+    required: true
+    value: rocketchat
+
+objects:
+  kind: ImageSteam
+  apiVersion: v1
+  metadata:
+    name: ${NAME}
+    annotations:
+      description: "a cloned copy of the rocketchat image stream"
+    spec: {}
+    status:
+      dockerImageRepository: docker.io/library/rocket.chat
+      tags:
+        tag: latest
