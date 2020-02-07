@@ -13,7 +13,11 @@ module.exports = (settings)=>{
 
   //if the network security policy doesn't exist, make one.
   oc.createIfMissing(
-    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {}),
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
+      param: {
+        NAMESPACE: phases.build.namespace
+      }
+    }),
   );
 
   objects = objects.concat(
