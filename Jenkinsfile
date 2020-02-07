@@ -21,7 +21,8 @@ pipeline {
                     abortAllPreviousBuildInProgress(currentBuild)
                 }
                 echo "Building ..."
-                sh "cd .pipeline && ./npmw ci && ./npmw run build -- --pr=${CHANGE_ID}"
+                //but actually there isn't anything to build, so skip this step.
+                //sh "cd .pipeline && ./npmw ci && ./npmw run build -- --pr=${CHANGE_ID}"
             }
         }
         stage('Deploy (DEV)') {
@@ -31,34 +32,23 @@ pipeline {
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=dev"
             }
         }
-        stage('Deploy (TEST)') {
+        stage('Deploy (PROD)') {
             agent { label 'deploy' }
+            input {
+                message "Prod deploys from the master branch - have you merged your changes?"
+                ok "Yes!"
+            }
             when {
                 expression { return env.CHANGE_TARGET == 'master';}
                 beforeInput true
             }
             input {
-                message "Should we continue with deployment to TEST?"
+                message "Should we continue with deployment?"
                 ok "Yes!"
             }
             steps {
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=test"
-            }
-        }
-        stage('Deploy (PROD)') {
-            agent { label 'deploy' }
-            when {
-                expression { return env.CHANGE_TARGET == 'master';}
-                beforeInput true
-            }
-            input {
-                message "Should we continue with deployment to TEST?"
-                ok "Yes!"
-            }
-            steps {
-                echo "Deploying ..."
-                sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=prod"
             }
         }
     }

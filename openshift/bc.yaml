@@ -10,13 +10,13 @@ parameters:
     displayName: Name
     name: NAME
     required: true
-    value: rocketchat
+    value: code-test
 
 objects:
   - kind: ImageStream
     apiVersion: v1
     metadata:
-      name: ${NAME}
+      name: rocketchat
       annotations:
         description: "a cloned copy of the rocketchat image stream"
       spec: {}
