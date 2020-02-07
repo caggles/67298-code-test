@@ -15,21 +15,27 @@ module.exports = (settings)=>{
   oc.createIfMissing(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
       param: {
-        NAMESPACE: 'cailey-dev'
+        NAMESPACE: 'cailey-' + phase
       }
     }),
   );
 
+  //todo: run a backup on the database before proceeding.
+
+  //make the mongodb replica set first.
   objects = objects.concat(
-    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc.yaml`, {
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo.yaml`, {
       param: {
         APPLICATION_NAME: 'rocketchat',
         HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
-        ROCKETCHAT_IMAGE_REGISTRY: 'docker.io/library/rocket.chat',
-        ROCKETCHAT_IMAGE_TAG: '2.4.1',
-        ROCKETCHAT_REPLICAS: 3,
         MONGODB_REPLICAS: 3,
         MONGODB_SERVICE_NAME: 'mongodb',
+        MONGODB_SECRET_NAME: 'mongodb',
+        MONGODB_NAME: 'rocketdb',
+        MONGODB_REPLICA_NAME: 'rs0',
+        MONGODB_IMAGE: 'docker-registry.default.svc:5000/openshift/mongodb',
+        MONGODB_TAG: '3.6',
+        MONGODB_STORAGE_CLASS: 'netapp-file-standard',
         MEMORY_REQUEST: '512Mi',
         MEMORY_LIMIT: '1Gi',
         CPU_REQUEST: '500m',
@@ -39,6 +45,26 @@ module.exports = (settings)=>{
     }),
   );
 
+  //now deploy rocketchat
+  objects = objects.concat(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-rocketchat.yaml`, {
+      param: {
+        APPLICATION_NAME: 'rocketchat',
+        HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
+        ROCKETCHAT_IMAGE_REGISTRY: 'docker.io/library/rocket.chat',
+        ROCKETCHAT_IMAGE_TAG: '2.2.0',
+        ROCKETCHAT_REPLICAS: '3',
+        MONGODB_SECRET_NAME: 'mongodb',
+        MEMORY_REQUEST: '512Mi',
+        MEMORY_LIMIT: '1Gi',
+        CPU_REQUEST: '500m',
+        CPU_LIMIT: 2,
+        VOLUME_CAPACITY: '1Gi'
+      },
+    }),
+  );
+
+  //todo: now deploy the backup container
 
   oc.applyRecommendedLabels(objects, phases[phase].name, phase, `${changeId}`, phases[phase].instance)
   oc.importImageStreams(objects, phases[phase].tag, phases.build.namespace, phases.build.tag)

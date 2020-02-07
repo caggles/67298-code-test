@@ -1,0 +1,194 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: rocket-chat
+  annotations:
+    description: "Rocketchat with replication for Cailey's code test."
+
+objects:
+
+  ## Config map to use for logging into rocketchat as the admin user
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: rocketchat-config
+    data:
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASS: "${ROCKETCHAT_ADMIN_PASSWORD}"
+      OVERWRITE_SETTING_Message_AllowSnippeting: "True"
+
+  ## Rocketchat service and route definitions
+  ## Creates the URL for connecting to rc.
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: ${APPLICATION_NAME}
+      name: ${APPLICATION_NAME}
+    spec:
+      ports:
+      - name: 3000-tcp
+        port: 3000
+        protocol: TCP
+        targetPort: 3000
+      selector:
+        app: ${APPLICATION_NAME}
+        deploymentConfig: ${APPLICATION_NAME}
+      type: ClusterIP
+      SessionAffinity: None
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: ${APPLICATION_NAME}
+      annotations:
+        description: Route for application's http service.
+      labels:
+        app: ${APPLICATION_NAME}
+    spec:
+      host: "${HOSTNAME_HTTPS}"
+      port:
+        targetPort: 3000-tcp
+      to:
+        kind: Service
+        name: ${APPLICATION_NAME}
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+
+  ## deployment config for HA rocketchat instance.
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: ${APPLICATION_NAME}
+      name: ${APPLICATION_NAME}
+    spec:
+      strategy:
+        type: Rolling
+      triggers:
+      - type: ConfigChange
+      replicas: "${ROCKETCHAT_REPLICAS}"
+      selector:
+        app: "${APPLICATION_NAME}"
+        deploymentConfig: "${APPLICATION_NAME}"
+      template:
+        metadata:
+          labels:
+            app: "${APPLICATION_NAME}"
+            deploymentConfig: "${APPLICATION_NAME}"
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - ${APPLICATION_NAME}
+                topologyKey: "kubernetes.io/hostname"
+          containers:
+          - env:
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  key: mongo-url
+                  name: "${MONGODB_SECRET_NAME}"
+            - name: MONGO_OPLOG_URL
+              valueFrom:
+                secretKeyRef:
+                  key: mongo-oplog-url
+                  name: "${MONGODB_SECRET_NAME}"
+            envFrom:
+              - configMapRef:
+                  name: rocketchat-config
+            image: "${ROCKETCHAT_IMAGE_REGISTRY}:${ROCKETCHAT_IMAGE_TAG}"
+            imagePullPolicy: Always
+            name: "${APPLICATION_NAME}"
+            ports:
+            - containerPort: 3000
+              protocol: TCP
+            livenessProbe:
+              httpGet:
+                path: /api/v1/info
+                port: 3000
+                scheme: HTTP
+              initialDelaySeconds: 120
+              timeoutSeconds: 5
+              periodSeconds: 20
+              successThreshold: 1
+              failureThreshold: 5
+            readinessProbe:
+              httpGet:
+                path: /api/v1/info
+                port: 3000
+                scheme: HTTP
+              initialDelaySeconds: 120
+              timeoutSeconds: 5
+              periodSeconds: 20
+              successThreshold: 1
+              failureThreshold: 5
+            resources:
+              limits:
+                cpu: "${CPU_LIMIT}"
+                memory: "${MEMORY_LIMIT}"
+              requests:
+                memory: "${MEMORY_REQUEST}"
+                cpu: "${CPU_REQUEST}"
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 60
+    status: {}
+
+parameters:
+  - name: APPLICATION_NAME
+    displayName: Application Name
+    required: true
+    value: rocketchat
+
+  - name: HOSTNAME_HTTPS
+    description: Hostname serving the application
+    displayName: Route Name
+    required: true
+
+  - name: ROCKETCHAT_ADMIN_PASSWORD
+    displayName: Rocketchat Admin Password
+    generate: expression
+    from: "[a-zA-Z0-9]{16}"
+    required: true
+
+  - name: ROCKETCHAT_IMAGE_REGISTRY
+    displayName: Rocketchat Image Registry
+    value: "docker.io/library/rocket.chat"
+    required: true
+
+  - name: ROCKETCHAT_IMAGE_TAG
+    displayName: RocketChat Tag
+    value: "latest"
+    required: true
+
+  - name: ROCKETCHAT_REPLICAS
+    displayName: RocketChat Replicas
+    value: "3"
+    required: true
+
+  - name: MEMORY_REQUEST
+    displayName: Memory Request
+    required: true
+
+  - name: MEMORY_LIMIT
+    displayName: Memory Limit
+    required: true
+
+  - name: CPU_REQUEST
+    displayName: CPU Request
+    required: true
+
+  - name: CPU_LIMIT
+    displayName: CPU Limit
+    required: true
+
+  - name: MONGODB_SECRET_NAME
+    displayName: MongoDB Secret
+    description: Name of the Secret containing MongoDB Assets
+    value: "mongodb"
+    required: true

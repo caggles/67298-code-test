@@ -1,0 +1,235 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: rocket-chat
+  annotations:
+    description: "MongoDB replicate set for Cailey's Code Test."
+
+objects:
+
+  ## Mongo DB full list of secrets for admin access, app access and connection strings
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: ${MONGODB_SERVICE_NAME}
+      labels:
+        name: "${MONGODB_SERVICE_NAME}"
+    stringData:
+      username: "${MONGODB_USER}"
+      password: "${MONGODB_PASSWORD}"
+      admin-username: "admin"
+      admin-password: "${MONGODB_ADMIN_PASSWORD}"
+      database: "${MONGODB_NAME}"
+      replica-name: "${MONGODB_REPLICA_NAME}"
+      mongo-url: "mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_SERVICE_NAME}:27017/${MONGODB_NAME}?replicaSet=${MONGODB_REPLICA_NAME}"
+      mongo-oplog-url: "mongodb://admin:${MONGODB_ADMIN_PASSWORD}@${MONGODB_SERVICE_NAME}:27017/local?authSource=admin&replicaSet=${MONGODB_REPLICA_NAME}"
+
+  ## Mongo services
+  ## One requires pod readiness, the other doesn't.
+  ## This is because the replica set requires a service in order to connect before it can be considered ready.
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}"
+      labels:
+        name: "${MONGODB_SERVICE_NAME}"
+    spec:
+      ports:
+        - name: mongodb
+          port: 27017
+      selector:
+        name: "${MONGODB_SERVICE_NAME}"
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}-internal"
+      labels:
+        name: "${MONGODB_SERVICE_NAME}"
+      annotations:
+        service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    spec:
+      clusterIP: None
+      ports:
+        - name: mongodb
+          port: 27017
+      selector:
+        name: "${MONGODB_SERVICE_NAME}"
+
+  ## MongoDB stateful set
+  - kind: StatefulSet
+    apiVersion: apps/v1beta1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}"
+    spec:
+      serviceName: "${MONGODB_SERVICE_NAME}-internal"
+      replicas: "${MONGODB_REPLICAS}"
+      template:
+        metadata:
+          labels:
+            name: "${MONGODB_SERVICE_NAME}"
+        spec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: name
+                    operator: In
+                    values:
+                    - ${MONGODB_SERVICE_NAME}
+                topologyKey: "kubernetes.io/hostname"
+          containers:
+            - name: mongo-container
+              image: "${MONGODB_IMAGE}:${MONGODB_TAG}"
+              ports:
+                - containerPort: 27017
+              args:
+                - "run-mongod-replication"
+              volumeMounts:
+                - name: mongo-data
+                  mountPath: "/var/lib/mongodb/data"
+              env:
+                - name: MONGODB_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: username
+                      name: "${MONGODB_SERVICE_NAME}"
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: password
+                      name: "${MONGODB_SERVICE_NAME}"
+                - name: MONGODB_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: database
+                      name: "${MONGODB_SERVICE_NAME}"
+                - name: MONGODB_ADMIN_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: admin-password
+                      name: "${MONGODB_SERVICE_NAME}"
+                - name: MONGODB_REPLICA_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      key: replica-name
+                      name: "${MONGODB_SERVICE_NAME}"
+                - name: MONGODB_KEYFILE_VALUE
+                  value: "${MONGODB_KEYFILE_VALUE}"
+                - name: MONGODB_SERVICE_NAME
+                  value: "${MONGODB_SERVICE_NAME}-internal"
+              resources:
+                limits:
+                  memory: "${MEMORY_LIMIT}"
+              readinessProbe:
+                exec:
+                  command:
+                    - stat
+                    - /tmp/initialized
+      volumeClaimTemplates:
+        - metadata:
+            name: mongo-data
+            labels:
+              name: "${MONGODB_SERVICE_NAME}"
+          spec:
+            accessModes: [ ReadWriteOnce ]
+            storageClassName: "${MONGODB_STORAGE_CLASS}"
+            resources:
+              requests:
+                storage: "${VOLUME_CAPACITY}"
+
+parameters:
+  - name: APPLICATION_NAME
+    description: The name assigned to the application
+    displayName: Application Name
+    required: true
+    value: rocketchat
+
+  - name: HOSTNAME_HTTPS
+    description: Hostname serving the application
+    displayName: Route Name
+    required: true
+
+  - name: MONGODB_REPLICAS
+    description: Number of MongoDB replica pods
+    displayName: MongoDB Replicas
+    value: "3"
+    required: true
+
+  - name: MONGODB_SERVICE_NAME
+    description: Name of the MongoDB Service
+    displayName: MongoDB Service Name
+    value: "mongodb"
+    required: true
+
+  - name: MONGODB_SECRET_NAME
+    displayName: MongoDB Secret.
+    description: Name of the Secret containing MongoDB Assets
+    value: "mongodb"
+    required: true
+
+  - name: MONGODB_USER
+    displayName: "MongoDB Connection Username"
+    description: "Username for MongoDB user that will be used for accessing the database."
+    generate: expression
+    from: "[a-zA-Z0-9]{5}"
+    required: true
+
+  - name: MONGODB_PASSWORD
+    displayName: "MongoDB Connection Password"
+    description: "Password for the MongoDB connection user."
+    generate: expression
+    from: "[a-zA-Z0-9]{16}"
+    required: true
+
+  - name: MONGODB_NAME
+    displayName: "MongoDB Database Name"
+    description: "Name of the MongoDB database accessed."
+    value: rocketdb
+    required: true
+
+  - name: MONGODB_ADMIN_PASSWORD
+    displayName: "MongoDB Admin Password"
+    description: "Password for the database admin user."
+    generate: expression
+    from: "[a-zA-Z0-9]{16}"
+    required: true
+
+  - name: MONGODB_REPLICA_NAME
+    displayName: "Replica Set Name"
+    description: "The name of the replica set."
+    value: rs0
+    required: true
+
+  - name: MONGODB_KEYFILE_VALUE
+    displayName: "Keyfile Content"
+    description: "The value of the MongoDB keyfile (https://docs.mongodb.com/manual/core/security-internal-authentication/#internal-auth-keyfile)."
+    generate: expression
+    from: "[a-zA-Z0-9]{255}"
+    required: true
+
+  - name: MONGODB_IMAGE
+    displayName: "MongoDB Docker Image"
+    value: "docker-registry.default.svc:5000/openshift/mongodb"
+    required: true
+
+  - name: MONGODB_TAG
+    displayName: "MongoDB Docker Tag"
+    value: "3.6"
+    required: true
+
+  - name: VOLUME_CAPACITY
+    displayName: "Volume Capacity for MongoDB"
+    required: true
+
+  - name: MONGODB_STORAGE_CLASS
+    description: The Storage Class for the MongoDB
+    displayName: Storage Class for MongoDB
+    required: true
+    value: "netapp-file-standard"
+
+  - name: MEMORY_LIMIT
+    description: Amount of Memory to Limit.
+    displayName: Memory Limit
+    required: true
+
