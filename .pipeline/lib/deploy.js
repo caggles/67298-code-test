@@ -55,8 +55,7 @@ module.exports = (settings)=>{
         MEMORY_REQUEST: '512Mi',
         MEMORY_LIMIT: '1Gi',
         CPU_REQUEST: '500m',
-        CPU_LIMIT: 2,
-        VOLUME_CAPACITY: '1Gi'
+        CPU_LIMIT: 2
       },
     }),
   );
