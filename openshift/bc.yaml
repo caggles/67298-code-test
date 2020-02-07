@@ -13,14 +13,14 @@ parameters:
     value: rocketchat
 
 objects:
-  kind: ImageSteam
-  apiVersion: v1
-  metadata:
-    name: ${NAME}
-    annotations:
-      description: "a cloned copy of the rocketchat image stream"
-    spec: {}
-    status:
-      dockerImageRepository: docker.io/library/rocket.chat
-      tags:
-        tag: latest
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: ${NAME}
+      annotations:
+        description: "a cloned copy of the rocketchat image stream"
+      spec: {}
+      status:
+        dockerImageRepository: docker.io/library/rocket.chat
+        tags:
+          tag: latest
