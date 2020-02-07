@@ -15,7 +15,7 @@ module.exports = (settings)=>{
   oc.createIfMissing(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
       param: {
-        NAMESPACE: phases.build.namespace
+        NAMESPACE: 'cailey-dev'
       }
     }),
   );
@@ -24,7 +24,7 @@ module.exports = (settings)=>{
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc.yaml`, {
       param: {
         APPLICATION_NAME: 'rocketchat',
-        HOSTNAME_HTTPS: 'cailey-rocketchat-' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
+        HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
         ROCKETCHAT_IMAGE_REGISTRY: 'docker.io/library/rocket.chat',
         ROCKETCHAT_IMAGE_TAG: '2.4.1',
         ROCKETCHAT_REPLICAS: 3,
