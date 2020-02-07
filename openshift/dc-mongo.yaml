@@ -99,7 +99,7 @@ objects:
                     secretKeyRef:
                       key: password
                       name: "${MONGODB_SERVICE_NAME}"
-                - name: MONGODB_NAME
+                - name: MONGODB_DATABASE
                   valueFrom:
                     secretKeyRef:
                       key: database
