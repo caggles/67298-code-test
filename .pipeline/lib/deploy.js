@@ -11,7 +11,34 @@ module.exports = (settings)=>{
   const templatesLocalBaseUrl =oc.toFileUrl(path.resolve(__dirname, '../../openshift'))
   var objects = []
 
-  // The deployment of your cool app goes here ▼▼▼
+  //if the network security policy doesn't exist, make one.
+  oc.createIfMissing(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
+      param: {
+        NAMESPACE: 'cailey-dev'
+      }
+    }),
+  );
+
+  objects = objects.concat(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc.yaml`, {
+      param: {
+        APPLICATION_NAME: 'rocketchat',
+        HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
+        ROCKETCHAT_IMAGE_REGISTRY: 'docker.io/library/rocket.chat',
+        ROCKETCHAT_IMAGE_TAG: '2.4.1',
+        ROCKETCHAT_REPLICAS: 3,
+        MONGODB_REPLICAS: 3,
+        MONGODB_SERVICE_NAME: 'mongodb',
+        MEMORY_REQUEST: '512Mi',
+        MEMORY_LIMIT: '1Gi',
+        CPU_REQUEST: '500m',
+        CPU_LIMIT: 2,
+        VOLUME_CAPACITY: '1Gi'
+      },
+    }),
+  );
+
 
   oc.applyRecommendedLabels(objects, phases[phase].name, phase, `${changeId}`, phases[phase].instance)
   oc.importImageStreams(objects, phases[phase].tag, phases.build.namespace, phases.build.tag)

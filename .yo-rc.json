@@ -42,5 +42,33 @@
         }
       }
     }
+  },
+  "@bcgov/generator-bcdk": {
+    "promptValues": {
+      "modules": {
+        "jenkins": {
+          "path": ".jenkins",
+          "name": "jenkins",
+          "namespace": "cailey-tools",
+          "version": "1.0.0",
+          "environments": {
+            "build": {
+              "namespace": "cailey-tools"
+            },
+            "dev": {
+              "namespace": "cailey-tools"
+            },
+            "prod": {
+              "namespace": "cailey-tools"
+            }
+          },
+          "jenkinsJobName": "_jenkins",
+          "github_owner": "caggles",
+          "github_repo": "67298-code-test",
+          "jenkinsFilePath": ".jenkins/Jenkinsfile",
+          "uuid": "76ed3cb8-61b9-426d-b798-581df86faa0e"
+        }
+      }
+    }
   }
 }

@@ -21,7 +21,7 @@ pipeline {
                     abortAllPreviousBuildInProgress(currentBuild)
                 }
                 echo "Building ..."
-                sh "cd .pipeline && ./npmw ci && ./npmw run build -- --pr=${CHANGE_ID}"
+                //sh "cd .pipeline && ./npmw ci && ./npmw run build -- --pr=${CHANGE_ID}"
             }
         }
         stage('Deploy (DEV)') {
@@ -33,10 +33,6 @@ pipeline {
         }
         stage('Deploy (TEST)') {
             agent { label 'deploy' }
-            when {
-                expression { return env.CHANGE_TARGET == 'master';}
-                beforeInput true
-            }
             input {
                 message "Should we continue with deployment to TEST?"
                 ok "Yes!"
