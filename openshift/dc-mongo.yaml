@@ -144,7 +144,11 @@ parameters:
     description: The name assigned to the application
     displayName: Application Name
     required: true
-#    value: rocketchat
+
+  - name: PROJECT_NAME
+    description: The name assigned to the whole project
+    displayName: Project name
+    required: true
 
   - name: HOSTNAME_HTTPS
     description: Hostname serving the application

@@ -27,6 +27,7 @@ module.exports = (settings)=>{
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo.yaml`, {
       param: {
         APPLICATION_NAME: 'rocketchat' + phases[phase].suffix,
+        PROJECT_NAME: phases[phase].name + phases[phase].suffix,
         HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
         MONGODB_REPLICAS: 3,
         MONGODB_SERVICE_NAME: 'mongodb' + phases[phase].suffix,
