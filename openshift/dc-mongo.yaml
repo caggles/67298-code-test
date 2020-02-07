@@ -131,6 +131,7 @@ objects:
             name: mongo-data
             labels:
               name: "${MONGODB_SERVICE_NAME}"
+              app: "${PROJECT_NAME}"
           spec:
             accessModes: [ ReadWriteOnce ]
             storageClassName: "${MONGODB_STORAGE_CLASS}"
