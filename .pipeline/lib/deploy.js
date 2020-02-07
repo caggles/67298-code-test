@@ -36,10 +36,7 @@ module.exports = (settings)=>{
         MONGODB_IMAGE: 'docker-registry.default.svc:5000/openshift/mongodb',
         MONGODB_TAG: '3.6',
         MONGODB_STORAGE_CLASS: 'netapp-file-standard',
-        MEMORY_REQUEST: '512Mi',
         MEMORY_LIMIT: '1Gi',
-        CPU_REQUEST: '500m',
-        CPU_LIMIT: 2,
         VOLUME_CAPACITY: '1Gi'
       },
     }),
