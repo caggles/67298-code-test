@@ -101,7 +101,7 @@ objects:
                   name: "${MONGODB_SECRET_NAME}"
             envFrom:
               - configMapRef:
-                  name: rocketchat-config
+                  name: ${APPLICATION_NAME}-config
             image: "${ROCKETCHAT_IMAGE_REGISTRY}:${ROCKETCHAT_IMAGE_TAG}"
             imagePullPolicy: Always
             name: "${APPLICATION_NAME}"
