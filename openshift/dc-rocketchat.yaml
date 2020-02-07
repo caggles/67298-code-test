@@ -1,7 +1,7 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: rocket-chat
+  name: rocketchat
   annotations:
     description: "Rocketchat with replication for Cailey's code test."
 
@@ -11,7 +11,7 @@ objects:
   - apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: rocketchat-config
+      name: ${APPLICATION_NAME}-config
     data:
       ADMIN_USERNAME: "admin"
       ADMIN_PASS: "${ROCKETCHAT_ADMIN_PASSWORD}"

@@ -26,13 +26,13 @@ module.exports = (settings)=>{
   objects = objects.concat(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo.yaml`, {
       param: {
-        APPLICATION_NAME: 'rocketchat',
+        APPLICATION_NAME: 'rocketchat' + phases[phase].suffix,
         HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
         MONGODB_REPLICAS: 3,
-        MONGODB_SERVICE_NAME: 'mongodb',
-        MONGODB_SECRET_NAME: 'mongodb',
-        MONGODB_NAME: 'rocketdb',
-        MONGODB_REPLICA_NAME: 'rs0',
+        MONGODB_SERVICE_NAME: 'mongodb' + phases[phase].suffix,
+        MONGODB_SECRET_NAME: 'mongodb' + phases[phase].suffix,
+        MONGODB_NAME: 'rocketdb' + phases[phase].suffix,
+        MONGODB_REPLICA_NAME: 'rs0' + phases[phase].suffix,
         MONGODB_IMAGE: 'docker-registry.default.svc:5000/openshift/mongodb',
         MONGODB_TAG: '3.6',
         MONGODB_STORAGE_CLASS: 'netapp-file-standard',
@@ -46,12 +46,12 @@ module.exports = (settings)=>{
   objects = objects.concat(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-rocketchat.yaml`, {
       param: {
-        APPLICATION_NAME: 'rocketchat',
+        APPLICATION_NAME: 'rocketchat' + phases[phase].suffix,
         HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
         ROCKETCHAT_IMAGE_REGISTRY: 'docker.io/library/rocket.chat',
         ROCKETCHAT_IMAGE_TAG: '2.2.0',
         ROCKETCHAT_REPLICAS: '3',
-        MONGODB_SECRET_NAME: 'mongodb',
+        MONGODB_SECRET_NAME: 'mongodb' + phases[phase].suffix,
         MEMORY_REQUEST: '512Mi',
         MEMORY_LIMIT: '1Gi',
         CPU_REQUEST: '500m',
