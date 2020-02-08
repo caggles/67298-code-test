@@ -12,8 +12,8 @@ objects:
     kind: DeploymentConfig
     metadata:
       labels:
-        app: ${APPLICATION_NAME}
-      name: ${APPLICATION_NAME}
+        app: "${APPLICATION_NAME}"
+      name: "${APPLICATION_NAME}"
     spec:
       strategy:
         type: Rolling
@@ -37,7 +37,7 @@ objects:
                   - key: app
                     operator: In
                     values:
-                    - ${APPLICATION_NAME}
+                    - "${APPLICATION_NAME}"
                 topologyKey: "kubernetes.io/hostname"
           containers:
           - env:
@@ -95,7 +95,7 @@ parameters:
   - name: APPLICATION_NAME
     displayName: Application Name
     required: true
-    value: rocketchat
+    value: "rocketchat"
 
   - name: HOSTNAME_HTTPS
     description: Hostname serving the application
