@@ -12,8 +12,8 @@ objects:
     kind: DeploymentConfig
     metadata:
       labels:
-        app: "${APPLICATION_NAME}"
-      name: "${APPLICATION_NAME}"
+        app: "${{APPLICATION_NAME}}"
+      name: "${{APPLICATION_NAME}}"
     spec:
       strategy:
         type: Rolling
@@ -21,13 +21,13 @@ objects:
       - type: ConfigChange
       replicas: "${{ROCKETCHAT_REPLICAS}}"
       selector:
-        app: "${APPLICATION_NAME}"
-        deploymentConfig: "${APPLICATION_NAME}"
+        app: "${{APPLICATION_NAME}}"
+        deploymentConfig: "${{APPLICATION_NAME}}"
       template:
         metadata:
           labels:
-            app: "${APPLICATION_NAME}"
-            deploymentConfig: "${APPLICATION_NAME}"
+            app: "${{APPLICATION_NAME}}"
+            deploymentConfig: "${{APPLICATION_NAME}}"
         spec:
           affinity:
             podAntiAffinity:
@@ -37,7 +37,7 @@ objects:
                   - key: app
                     operator: In
                     values:
-                    - "${APPLICATION_NAME}"
+                    - "${{APPLICATION_NAME}}"
                 topologyKey: "kubernetes.io/hostname"
           containers:
           - env:
@@ -45,18 +45,18 @@ objects:
               valueFrom:
                 secretKeyRef:
                   key: mongo-url
-                  name: "${MONGODB_SECRET_NAME}"
+                  name: "${{MONGODB_SECRET_NAME}}"
             - name: MONGO_OPLOG_URL
               valueFrom:
                 secretKeyRef:
                   key: mongo-oplog-url
-                  name: "${MONGODB_SECRET_NAME}"
+                  name: "${{MONGODB_SECRET_NAME}}"
             envFrom:
               - configMapRef:
-                  name: ${APPLICATION_NAME}-config
-            image: "${ROCKETCHAT_IMAGE_REGISTRY}:${ROCKETCHAT_IMAGE_TAG}"
+                  name: ${{APPLICATION_NAME}}-config
+            image: "${{ROCKETCHAT_IMAGE_REGISTRY}}:${{ROCKETCHAT_IMAGE_TAG}}"
             imagePullPolicy: Always
-            name: "${APPLICATION_NAME}"
+            name: "${{APPLICATION_NAME}}"
             ports:
             - containerPort: 3000
               protocol: TCP
@@ -83,10 +83,10 @@ objects:
             resources:
               limits:
                 cpu: "${{CPU_LIMIT}}"
-                memory: "${MEMORY_LIMIT}"
+                memory: "${{MEMORY_LIMIT}}"
               requests:
-                memory: "${MEMORY_REQUEST}"
-                cpu: "${CPU_REQUEST}"
+                memory: "${{MEMORY_REQUEST}}"
+                cpu: "${{CPU_REQUEST}}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 60
     status: {}
