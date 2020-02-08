@@ -31,6 +31,7 @@ pipeline {
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=dev"
             }
         }
+/*
         stage('Deploy (TEST)') {
             agent { label 'deploy' }
             input {
@@ -42,6 +43,7 @@ pipeline {
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=test"
             }
         }
+*/
         stage('Deploy (PROD)') {
             agent { label 'deploy' }
             when {
