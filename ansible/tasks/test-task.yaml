@@ -1,0 +1,20 @@
+---
+## Pause before testing!
+- pause:
+    prompt: "Wait for the resources to spin up before testing!"
+
+## Test to see if you can hit the rocketchat API - this confirms that rocketchat is up.
+- name: Hit the API to make sure that rocketchat is up
+  uri:
+    url: "https://cailey-rocketchat-{{env}}.pathfinder.gov.bc.ca/api/info"
+    method: GET
+  register: test1_result
+  ignore_errors: yes
+
+- debug:
+    msg: "The rocketchat API is no longer available. You should rollback using rollback.yaml"
+  when: test1_result.failed == true
+
+- debug:
+    msg: "The rocketchat API is available. This does not guarantee that the deployment was a success."
+  when: test1_result.failed == false

@@ -14,6 +14,8 @@ objects:
     metadata:
       labels:
         app: ${APPLICATION_NAME}
+        project: "${PROJECT_NAME}"
+        subproject: "rocketchat"
       name: ${APPLICATION_NAME}
     spec:
       ports:
@@ -56,3 +58,7 @@ parameters:
     displayName: Route Name
     required: true
 
+  - name: PROJECT_NAME
+    displayName: Project's Name
+    value: "code-test"
+    required: true

@@ -16,6 +16,8 @@ objects:
       name: "${MONGODB_SERVICE_NAME}"
       labels:
         name: "${MONGODB_SERVICE_NAME}"
+        project: "${PROJECT_NAME}"
+        subproject: "mongodb"
     spec:
       ports:
         - name: mongodb
@@ -28,6 +30,7 @@ objects:
       name: "${MONGODB_SERVICE_NAME}-internal"
       labels:
         name: "${MONGODB_SERVICE_NAME}"
+        app: "${PROJECT_NAME}"
       annotations:
         service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
     spec:
@@ -41,7 +44,11 @@ objects:
 parameters:
 
   - name: MONGODB_SERVICE_NAME
-    description: Name of the MongoDB Service
     displayName: MongoDB Service Name
     value: "mongodb"
+    required: true
+
+  - name: PROJECT_NAME
+    displayName: Project's Name
+    value: "code-test"
     required: true

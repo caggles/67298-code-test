@@ -19,6 +19,8 @@ objects:
         metadata:
           labels:
             name: "${MONGODB_SERVICE_NAME}"
+            project: "${PROJECT_NAME}"
+            subproject: "mongodb"
         spec:
           affinity:
             podAntiAffinity:
@@ -83,7 +85,8 @@ objects:
             name: mongo-data
             labels:
               name: "${MONGODB_SERVICE_NAME}"
-              app: "${PROJECT_NAME}"
+              project: "${PROJECT_NAME}"
+              subproject: "mongodb"
           spec:
             accessModes: [ ReadWriteOnce ]
             storageClassName: "${MONGODB_STORAGE_CLASS}"
@@ -95,11 +98,6 @@ parameters:
   - name: APPLICATION_NAME
     description: The name assigned to the application
     displayName: Application Name
-    required: true
-
-  - name: PROJECT_NAME
-    description: The name assigned to the whole project
-    displayName: Project name
     required: true
 
   - name: HOSTNAME_HTTPS
@@ -167,5 +165,10 @@ parameters:
   - name: MEMORY_LIMIT
     description: Amount of Memory to Limit.
     displayName: Memory Limit
+    required: true
+
+  - name: PROJECT_NAME
+    displayName: Project's Name
+    value: "code-test"
     required: true
 
