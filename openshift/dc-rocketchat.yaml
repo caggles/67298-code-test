@@ -114,22 +114,27 @@ parameters:
 
   - name: ROCKETCHAT_REPLICAS
     displayName: RocketChat Replicas
+    value: "3"
     required: true
 
   - name: MEMORY_REQUEST
     displayName: Memory Request
+    value: "512Mi"
     required: true
 
   - name: MEMORY_LIMIT
     displayName: Memory Limit
+    value: "1Gi"
     required: true
 
   - name: CPU_REQUEST
     displayName: CPU Request
+    value: "500m"
     required: true
 
   - name: CPU_LIMIT
     displayName: CPU Limit
+    value: "2"
     required: true
 
   - name: MONGODB_SECRET_NAME
