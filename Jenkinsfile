@@ -56,6 +56,10 @@ pipeline {
 
         stage('Clean (DEV)') {
             agent { label 'clean' }
+            when {
+                expression { return env.CHANGE_TARGET == 'master';}
+                beforeInput true
+            }
             input {
                 message "Should we clean up the dev deployment now?"
                 ok "Yes!"
