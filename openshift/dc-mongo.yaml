@@ -14,7 +14,7 @@ objects:
       name: "${MONGODB_SERVICE_NAME}"
     spec:
       serviceName: "${MONGODB_SERVICE_NAME}-internal"
-      replicas: "${MONGODB_REPLICAS}"
+      replicas: "${{MONGODB_REPLICAS}}"
       template:
         metadata:
           labels:
