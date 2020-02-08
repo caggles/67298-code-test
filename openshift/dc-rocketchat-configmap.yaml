@@ -1,0 +1,30 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: rocketchat
+  annotations:
+    description: "Rocketchat with replication for Cailey's code test."
+
+objects:
+
+  ## Config map to use for logging into rocketchat as the admin user
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: ${APPLICATION_NAME}-config
+    data:
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASS: "${ROCKETCHAT_ADMIN_PASSWORD}"
+      OVERWRITE_SETTING_Message_AllowSnippeting: "True"
+
+parameters:
+  - name: APPLICATION_NAME
+    displayName: Application Name
+    required: true
+    value: rocketchat
+
+  - name: ROCKETCHAT_ADMIN_PASSWORD
+    displayName: Rocketchat Admin Password
+    generate: expression
+    from: "[a-zA-Z0-9]{16}"
+    required: true

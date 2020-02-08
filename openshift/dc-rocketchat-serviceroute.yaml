@@ -1,0 +1,57 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: rocketchat
+  annotations:
+    description: "Rocketchat with replication for Cailey's code test."
+
+objects:
+
+  ## Rocketchat service and route definitions
+  ## Creates the URL for connecting to rc.
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: ${APPLICATION_NAME}
+      name: ${APPLICATION_NAME}
+    spec:
+      ports:
+        - name: 3000-tcp
+          port: 3000
+          protocol: TCP
+          targetPort: 3000
+      selector:
+        app: ${APPLICATION_NAME}
+        deploymentConfig: ${APPLICATION_NAME}
+      type: ClusterIP
+      SessionAffinity: None
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: ${APPLICATION_NAME}
+      annotations:
+        description: Route for application's http service.
+      labels:
+        app: ${APPLICATION_NAME}
+    spec:
+      host: "${HOSTNAME_HTTPS}"
+      port:
+        targetPort: 3000-tcp
+      to:
+        kind: Service
+        name: ${APPLICATION_NAME}
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+parameters:
+  - name: APPLICATION_NAME
+    displayName: Application Name
+    required: true
+    value: rocketchat
+
+  - name: HOSTNAME_HTTPS
+    description: Hostname serving the application
+    displayName: Route Name
+    required: true
+

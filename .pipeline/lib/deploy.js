@@ -26,9 +26,9 @@ module.exports = (settings)=>{
   console.log("Make mongo services, maybe?");
   //if the two mongo services don't exist, make them.
   oc.createIfMissing(
-    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo-services.yaml`, {
       param: {
-        NAMESPACE: 'cailey-' + phase
+        MONGODB_SERVICE_NAME: 'mongodb' + phases[phase].suffix
       }
     }),
   );
@@ -52,6 +52,27 @@ module.exports = (settings)=>{
         MEMORY_LIMIT: '1Gi',
         VOLUME_CAPACITY: '1Gi'
       },
+    }),
+  );
+
+  console.log("Make rocketchat admin configmap, maybe?");
+  //if the rocketchat admin password configmap already exists, then don't overwrite it!
+  oc.createIfMissing(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-rocketchat-configmap.yaml`, {
+      param: {
+        APPLICATION_NAME: 'rocketchat' + phases[phase].suffix
+      }
+    }),
+  );
+
+  console.log("Make rocketchat admin service and route, maybe?");
+  //if the rocketchat admin service and route don't exist, make them.
+  oc.createIfMissing(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-rocketchat-serviceroute.yaml`, {
+      param: {
+        APPLICATION_NAME: 'rocketchat' + phases[phase].suffix,
+        HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca'
+      }
     }),
   );
 
