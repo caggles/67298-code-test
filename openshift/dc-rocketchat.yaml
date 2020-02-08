@@ -19,7 +19,7 @@ objects:
         type: Rolling
       triggers:
       - type: ConfigChange
-      replicas: ${{ROCKETCHAT_REPLICAS}}
+      replicas: "${{ROCKETCHAT_REPLICAS}}"
       selector:
         app: "${APPLICATION_NAME}"
         deploymentConfig: "${APPLICATION_NAME}"
@@ -82,7 +82,7 @@ objects:
               failureThreshold: 5
             resources:
               limits:
-                cpu: ${{CPU_LIMIT}}
+                cpu: "${{CPU_LIMIT}}"
                 memory: "${MEMORY_LIMIT}"
               requests:
                 memory: "${MEMORY_REQUEST}"
