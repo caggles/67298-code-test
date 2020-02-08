@@ -84,12 +84,12 @@ module.exports = (settings)=>{
         HOSTNAME_HTTPS: 'cailey-rocketchat' + phases[phase].suffix + '.pathfinder.gov.bc.ca',
         ROCKETCHAT_IMAGE_REGISTRY: 'docker.io/library/rocket.chat',
         ROCKETCHAT_IMAGE_TAG: '2.2.0',
-        ROCKETCHAT_REPLICAS: 3,
+        ROCKETCHAT_REPLICAS: "3",
         MONGODB_SECRET_NAME: 'mongodb' + phases[phase].suffix,
         MEMORY_REQUEST: '512Mi',
         MEMORY_LIMIT: '1Gi',
         CPU_REQUEST: '500m',
-        CPU_LIMIT: 2
+        CPU_LIMIT: "2"
       },
     }),
   );
