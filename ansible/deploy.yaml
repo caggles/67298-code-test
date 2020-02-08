@@ -1,0 +1,18 @@
+- hosts: localhost
+  become: false
+  vars_files:
+    vars.yaml
+  tasks:
+    - name: Connect to the correct namespace
+      command: >
+        - oc project {{namespace_name}}-{{env}}
+#    - name: Create NSP
+#      command: >
+#        oc process -f ../openshift/nsp.yaml --param-file={{env}}.env
+#    - name: Find NSP if it exists
+#        k8s_facts:
+#          api_version: v1
+#          kind: networksecuritypolicy
+#          name: "egress-internet"
+#        register: admin_secret
+#        ignore_errors: yes
