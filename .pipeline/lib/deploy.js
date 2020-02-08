@@ -38,7 +38,7 @@ module.exports = (settings)=>{
   oc.createIfMissing(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo-secret.yaml`, {
       param: {
-        MONGODB_SECRET_NAME: 'mongodb' + phases[phase].suffix,
+        MONGODB_SERVICE_NAME: 'mongodb' + phases[phase].suffix,
         MONGODB_REPLICA_NAME: 'rs0' + phases[phase].suffix
       }
     }),
