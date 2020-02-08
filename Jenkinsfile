@@ -29,21 +29,11 @@ pipeline {
             steps {
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=dev"
+                echo "Testing..."
+                sh "oc project cailey-test && oc get all"
             }
         }
-/*
-        stage('Deploy (TEST)') {
-            agent { label 'deploy' }
-            input {
-                message "Should we continue with deployment to TEST?"
-                ok "Yes!"
-            }
-            steps {
-                echo "Deploying ..."
-                sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=test"
-            }
-        }
-*/
+
         stage('Deploy (PROD)') {
             agent { label 'deploy' }
             when {
@@ -51,7 +41,7 @@ pipeline {
                 beforeInput true
             }
             input {
-                message "Should we continue with deployment to TEST?"
+                message "Should we continue with deployment to PROD?"
                 ok "Yes!"
             }
             steps {
@@ -59,7 +49,22 @@ pipeline {
                 sh "oc project cailey-test && oc get all"
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=prod"
+                echo "Testing..."
+                sh "oc project cailey-test && oc get all"
             }
         }
+
+        stage('Clean (DEV)') {
+            agent { label 'clean' }
+            input {
+                message "Should we clean up the dev deployment now?"
+                ok "Yes!"
+            }
+            steps {
+                echo "Cleaning ..."
+                sh "cd .pipeline && ./npmw ci && ./npmw run clean -- --pr=${CHANGE_ID} --env=dev"
+            }
+        }
+
     }
 }

@@ -2,4 +2,4 @@
 
 to rollback dev:
 `oc delete all,configmap,secret -l app=code-test-<suffix>`
-`oc delete pvc -l app=mongodb-<suffix>`
+`oc delete pvc -l statefulset=mongodb-<suffix>`
