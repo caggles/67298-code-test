@@ -54,21 +54,5 @@ pipeline {
             }
         }
 
-        stage('Clean (DEV)') {
-            agent { label 'clean' }
-            when {
-                expression { return env.CHANGE_TARGET == 'master';}
-                beforeInput true
-            }
-            input {
-                message "Should we clean up the dev deployment now?"
-                ok "Yes!"
-            }
-            steps {
-                echo "Cleaning ..."
-                sh "cd .pipeline && ./npmw ci && ./npmw run clean -- --pr=${CHANGE_ID} --env=dev"
-            }
-        }
-
     }
 }
