@@ -1,0 +1,47 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: rocket-chat
+  annotations:
+    description: "MongoDB replicate set for Cailey's Code Test."
+
+objects:
+
+  ## Mongo services
+  ## One requires pod readiness, the other doesn't.
+  ## This is because the replica set requires a service in order to connect before it can be considered ready.
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}"
+      labels:
+        name: "${MONGODB_SERVICE_NAME}"
+    spec:
+      ports:
+        - name: mongodb
+          port: 27017
+      selector:
+        name: "${MONGODB_SERVICE_NAME}"
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "${MONGODB_SERVICE_NAME}-internal"
+      labels:
+        name: "${MONGODB_SERVICE_NAME}"
+      annotations:
+        service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    spec:
+      clusterIP: None
+      ports:
+        - name: mongodb
+          port: 27017
+      selector:
+        name: "${MONGODB_SERVICE_NAME}"
+
+parameters:
+
+  - name: MONGODB_SERVICE_NAME
+    description: Name of the MongoDB Service
+    displayName: MongoDB Service Name
+    value: "mongodb"
+    required: true

@@ -4,7 +4,6 @@ const path = require('path');
 
 module.exports = (settings)=>{
   const phases = settings.phases;
-  console.log(phases);
   const options= settings.options;
   const phase=options.env;
   const changeId = phases[phase].changeId;
@@ -12,6 +11,7 @@ module.exports = (settings)=>{
   const templatesLocalBaseUrl =oc.toFileUrl(path.resolve(__dirname, '../../openshift'));
   let objects = [];
 
+  console.log("Make NSP, maybe?");
   //if the network security policy doesn't exist, make one.
   oc.createIfMissing(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
@@ -23,7 +23,18 @@ module.exports = (settings)=>{
 
   //todo: run a backup on the database before proceeding.
 
-  //make the mongodb replica set first.
+  console.log("Make mongo services, maybe?");
+  //if the two mongo services don't exist, make them.
+  oc.createIfMissing(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/nsp.yaml`, {
+      param: {
+        NAMESPACE: 'cailey-' + phase
+      }
+    }),
+  );
+
+
+  console.log("Make mongo replica set")
   objects = objects.concat(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo.yaml`, {
       param: {
@@ -44,7 +55,7 @@ module.exports = (settings)=>{
     }),
   );
 
-  //now deploy rocketchat
+  console.log("Deploy rocketchat")
   objects = objects.concat(
     oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-rocketchat.yaml`, {
       param: {

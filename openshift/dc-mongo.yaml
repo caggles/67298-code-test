@@ -24,37 +24,6 @@ objects:
       mongo-url: "mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_SERVICE_NAME}:27017/${MONGODB_NAME}?replicaSet=${MONGODB_REPLICA_NAME}"
       mongo-oplog-url: "mongodb://admin:${MONGODB_ADMIN_PASSWORD}@${MONGODB_SERVICE_NAME}:27017/local?authSource=admin&replicaSet=${MONGODB_REPLICA_NAME}"
 
-  ## Mongo services
-  ## One requires pod readiness, the other doesn't.
-  ## This is because the replica set requires a service in order to connect before it can be considered ready.
-  - kind: Service
-    apiVersion: v1
-    metadata:
-      name: "${MONGODB_SERVICE_NAME}"
-      labels:
-        name: "${MONGODB_SERVICE_NAME}"
-    spec:
-      ports:
-        - name: mongodb
-          port: 27017
-      selector:
-        name: "${MONGODB_SERVICE_NAME}"
-  - kind: Service
-    apiVersion: v1
-    metadata:
-      name: "${MONGODB_SERVICE_NAME}-internal"
-      labels:
-        name: "${MONGODB_SERVICE_NAME}"
-      annotations:
-        service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-    spec:
-      clusterIP: None
-      ports:
-        - name: mongodb
-          port: 27017
-      selector:
-        name: "${MONGODB_SERVICE_NAME}"
-
   ## MongoDB stateful set
   - kind: StatefulSet
     apiVersion: apps/v1beta1
