@@ -33,6 +33,17 @@ module.exports = (settings)=>{
     }),
   );
 
+  console.log("Make mongo secret, maybe?");
+  //if the mongo secret doesn't exist, make it.
+  oc.createIfMissing(
+    oc.processDeploymentTemplate(`${templatesLocalBaseUrl}/dc-mongo-secret.yaml`, {
+      param: {
+        MONGODB_SECRET_NAME: 'mongodb' + phases[phase].suffix,
+        MONGODB_REPLICA_NAME: 'rs0' + phases[phase].suffix
+      }
+    }),
+  );
+
 
   console.log("Make mongo replica set")
   objects = objects.concat(
