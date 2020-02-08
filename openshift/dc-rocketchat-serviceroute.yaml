@@ -44,6 +44,7 @@ objects:
       tls:
         termination: edge
         insecureEdgeTerminationPolicy: Redirect
+
 parameters:
   - name: APPLICATION_NAME
     displayName: Application Name

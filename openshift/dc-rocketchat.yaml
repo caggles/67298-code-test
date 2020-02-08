@@ -114,7 +114,6 @@ parameters:
 
   - name: ROCKETCHAT_REPLICAS
     displayName: RocketChat Replicas
-    value: 3
     required: true
 
   - name: MEMORY_REQUEST
