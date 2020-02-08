@@ -94,8 +94,6 @@ module.exports = (settings)=>{
     }),
   );
 
-  //todo: now deploy the backup container
-
   oc.applyRecommendedLabels(objects, phases[phase].name, phase, `${changeId}`, phases[phase].instance)
   oc.importImageStreams(objects, phases[phase].tag, phases.build.namespace, phases.build.tag)
   oc.applyAndDeploy(objects, phases[phase].instance)

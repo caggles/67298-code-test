@@ -1,4 +1,5 @@
 # 67298-code-test
 
 to rollback dev:
-`oc delete all,configmap,secret,pvc -l app=<label>`
+`oc delete all,configmap,secret -l app=code-test-<suffix>`
+`oc delete pvc -l app=mongodb-<suffix>`
