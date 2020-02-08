@@ -8,17 +8,17 @@ metadata:
 objects:
 
   ## deployment config for HA rocketchat instance.
-  - apiVersion: v1
-    kind: DeploymentConfig
+  - apiVersion: "v1"
+    kind: "DeploymentConfig"
     metadata:
       labels:
         app: "${APPLICATION_NAME}"
       name: "${APPLICATION_NAME}"
     spec:
       strategy:
-        type: Rolling
+        type: "Rolling"
       triggers:
-      - type: ConfigChange
+      - type: "ConfigChange"
       replicas: "${ROCKETCHAT_REPLICAS}"
       selector:
         app: "${APPLICATION_NAME}"
@@ -34,52 +34,52 @@ objects:
               requiredDuringSchedulingIgnoredDuringExecution:
               - labelSelector:
                   matchExpressions:
-                  - key: app
-                    operator: In
+                  - key: "app"
+                    operator: "In"
                     values:
                     - "${APPLICATION_NAME}"
                 topologyKey: "kubernetes.io/hostname"
           containers:
           - env:
-            - name: MONGO_URL
+            - name: "MONGO_URL"
               valueFrom:
                 secretKeyRef:
-                  key: mongo-url
+                  key: "mongo-url"
                   name: "${MONGODB_SECRET_NAME}"
-            - name: MONGO_OPLOG_URL
+            - name: "MONGO_OPLOG_URL"
               valueFrom:
                 secretKeyRef:
-                  key: mongo-oplog-url
+                  key: "mongo-oplog-url"
                   name: "${MONGODB_SECRET_NAME}"
             envFrom:
               - configMapRef:
-                  name: ${APPLICATION_NAME}-config
+                  name: "${APPLICATION_NAME}-config"
             image: "${ROCKETCHAT_IMAGE_REGISTRY}:${ROCKETCHAT_IMAGE_TAG}"
-            imagePullPolicy: Always
+            imagePullPolicy: "Always"
             name: "${APPLICATION_NAME}"
             ports:
-            - containerPort: 3000
-              protocol: TCP
+            - containerPort: "3000"
+              protocol: "TCP"
             livenessProbe:
               httpGet:
-                path: /api/v1/info
-                port: 3000
-                scheme: HTTP
-              initialDelaySeconds: 120
-              timeoutSeconds: 5
-              periodSeconds: 20
-              successThreshold: 1
-              failureThreshold: 5
+                path: "/api/v1/info"
+                port: "3000"
+                scheme: "HTTP"
+              initialDelaySeconds: "120"
+              timeoutSeconds: "5"
+              periodSeconds: "20"
+              successThreshold: "1"
+              failureThreshold: "5"
             readinessProbe:
               httpGet:
-                path: /api/v1/info
-                port: 3000
-                scheme: HTTP
-              initialDelaySeconds: 120
-              timeoutSeconds: 5
-              periodSeconds: 20
-              successThreshold: 1
-              failureThreshold: 5
+                path: "/api/v1/info"
+                port: "3000"
+                scheme: "HTTP"
+              initialDelaySeconds: "120"
+              timeoutSeconds: "5"
+              periodSeconds: "20"
+              successThreshold: "1"
+              failureThreshold: "5"
             resources:
               limits:
                 cpu: "${CPU_LIMIT}"
@@ -88,7 +88,7 @@ objects:
                 memory: "${MEMORY_REQUEST}"
                 cpu: "${CPU_REQUEST}"
           restartPolicy: Always
-          terminationGracePeriodSeconds: 60
+          terminationGracePeriodSeconds: "60"
     status: {}
 
 parameters:
