@@ -19,7 +19,7 @@ objects:
         type: Rolling
       triggers:
       - type: ConfigChange
-      replicas: "${{ROCKETCHAT_REPLICAS}}"
+      replicas: ${{ROCKETCHAT_REPLICAS}}
       selector:
         app: "${{APPLICATION_NAME}}"
         deploymentConfig: "${{APPLICATION_NAME}}"
@@ -53,8 +53,8 @@ objects:
                   name: "${{MONGODB_SECRET_NAME}}"
             envFrom:
               - configMapRef:
-                  name: ${{APPLICATION_NAME}}-config
-            image: "${{ROCKETCHAT_IMAGE_REGISTRY}}:${{ROCKETCHAT_IMAGE_TAG}}"
+                  name: "${APPLICATION_NAME}-config"
+            image: "${ROCKETCHAT_IMAGE_REGISTRY}:${ROCKETCHAT_IMAGE_TAG}"
             imagePullPolicy: Always
             name: "${{APPLICATION_NAME}}"
             ports:
