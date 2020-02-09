@@ -36,7 +36,7 @@ objects:
                   persistentVolumeClaim:
                     claimName: ${MONGODB_BACKUP_VOLUME_CLAIM}
               containers:
-                - name: ${MONGODB_BACKUP_VOLUME_CLAIM}
+                - name: mongodb-backup
                   image: 'docker-registry.default.svc:5000/openshift/mongodb:latest'
                   command:
                     - 'bash'
