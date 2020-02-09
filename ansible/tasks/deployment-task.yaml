@@ -35,10 +35,13 @@
   command: >
     oc delete job backup-mongo-{{env}}-prerelease
   ignore_errors: yes
+  when: env == "test"
 - name: create new job
   command: oc create job --from cronjob/backup-mongo-{{env}} backup-mongo-{{env}}-prerelease
+  when: env == "test"
 - pause:
     prompt: "Hit enter to continue once the backup is complete"
+  when: env == "test"
 
 ## Create services required for mongodb
 - name: find out if mongo services exist
