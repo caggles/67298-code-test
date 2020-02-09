@@ -1,0 +1,10 @@
+- hosts: localhost
+  vars_files:
+    vars.yaml
+  tasks:
+    - name: Deploy Rocketchat with MongoDB stateful set.
+      include_tasks: tasks/deployment-task.yaml
+    - name: Test to see if rocketchat is up.
+      include_tasks: tasks/test-task.yaml
+
+

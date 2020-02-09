@@ -1,0 +1,12 @@
+- hosts: localhost
+  vars_files:
+    vars.yaml
+  tasks:
+    - name: Rollback rocketchat and test
+      include_tasks: tasks/rollback-task.yaml
+    - name: Test to see if rocketchat is up.
+      include_tasks: tasks/test-task.yaml
+
+
+
+

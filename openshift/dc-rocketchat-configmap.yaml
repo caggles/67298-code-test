@@ -12,6 +12,8 @@ objects:
     kind: ConfigMap
     metadata:
       name: ${APPLICATION_NAME}-config
+      project: "${PROJECT_NAME}"
+      subproject: "rocketchat"
     data:
       ADMIN_USERNAME: "admin"
       ADMIN_PASS: "${ROCKETCHAT_ADMIN_PASSWORD}"
@@ -27,4 +29,9 @@ parameters:
     displayName: Rocketchat Admin Password
     generate: expression
     from: "[a-zA-Z0-9]{16}"
+    required: true
+
+  - name: PROJECT_NAME
+    displayName: Project's Name
+    value: "code-test"
     required: true

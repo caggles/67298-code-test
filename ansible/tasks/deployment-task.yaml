@@ -1,0 +1,142 @@
+---
+## Create a directory for temporarily holding processed templates
+- name: Create processed directory
+  file:
+    path: ../openshift/processed
+    state: directory
+
+## Connect to the appropriate namespace
+- name: Connect to the correct namespace ({{namespace_name}}-{{env}})
+  command: >
+    oc project {{namespace_name}}-{{env}}
+
+## Make the network security policy
+- name: process NSP
+  command: >
+    oc process -f ../openshift/nsp.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: nsp_processed
+- copy: content="{{ nsp_processed.stdout }}" dest=../openshift/processed/nsp.json
+- name: apply nsp
+  command: >
+    oc apply -f ../openshift/processed/nsp.json
+
+## Make backup cronjob
+- name: process backup cron
+  command: >
+    oc process -f ../openshift/cron-mongo-backup.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: cron_processed
+- copy: content="{{ cron_processed.stdout }}" dest=../openshift/processed/cron-mongo-backup.json
+- name: apply backup cron
+  command: >
+    oc apply -f ../openshift/processed/cron-mongo-backup.json
+
+## add backup command if in prod
+- name: delete old backup job, if any
+  command: >
+    oc delete job backup-mongo-{{env}}-prerelease
+  ignore_errors: yes
+  when: env == "test"
+- name: create new job
+  command: oc create job --from cronjob/backup-mongo-{{env}} backup-mongo-{{env}}-prerelease
+  when: env == "test"
+- pause:
+    prompt: "Hit enter to continue once the backup is complete"
+  when: env == "test"
+
+## Create services required for mongodb
+- name: find out if mongo services exist
+  command: >
+    oc get services -n {{namespace_name}}-{{env}} -l project={{project}}-{{env}} -l subproject=mongodb
+  register: mongo_services_check
+  ignore_errors: yes
+- name: process mongo services if they don't already exist
+  command: >
+    oc process -f ../openshift/dc-mongo-services.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: mongo_services_processed
+  when: mongo_services_check.stdout_lines|length == 0
+- copy: content="{{ mongo_services_processed.stdout }}" dest=../openshift/processed/dc-mongo-services.json
+  when: mongo_services_check.stdout_lines|length == 0
+- name: apply mongo services if they don't already exist
+  command: >
+    oc apply -f ../openshift/processed/dc-mongo-services.json
+  when: mongo_services_check.stdout_lines|length == 0
+
+## Create the secret required for mongodb
+- name: find out if mongo secret exists
+  command: >
+    oc get secrets -n {{namespace_name}}-{{env}} -l project={{project}}-{{env}} -l subproject=mongodb
+  register: mongo_secret_check
+  ignore_errors: yes
+- name: process mongo secret if they don't already exist
+  command: >
+    oc process -f ../openshift/dc-mongo-secret.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: mongo_secret_processed
+  when: mongo_secret_check.stdout_lines|length == 0
+- copy: content="{{ mongo_secret_processed.stdout }}" dest=../openshift/processed/dc-mongo-secret.json
+  when: mongo_secret_check.stdout_lines|length == 0
+- name: apply mongo secrets if it doesn't already exist
+  command: >
+    oc apply -f ../openshift/processed/dc-mongo-secret.json
+  when: mongo_secret_check.stdout_lines|length == 0
+
+## Update the mongo replica set
+- name: process replica set definition
+  command: >
+    oc process -f ../openshift/dc-mongo.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: mongo_processed
+- copy: content="{{ mongo_processed.stdout }}" dest=../openshift/processed/dc-mongo.json
+- name: apply replica set
+  command: >
+    oc apply -f ../openshift/processed/dc-mongo.json
+
+## Create the config-map for rocketchat
+- name: find out if rocketchat configmap exists
+  command: >
+    oc get configmap -n {{namespace_name}}-{{env}} -l project={{project}}-{{env}} -l subproject=rocketchat
+  register: rocketchat_configmap_check
+  ignore_errors: yes
+- name: process rocketchat configmap if it doesn't already exist
+  command: >
+    oc process -f ../openshift/dc-rocketchat-configmap.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: rocketchat_configmap_processed
+  when: rocketchat_configmap_check.stdout_lines|length == 0
+- copy: content="{{ rocketchat_configmap_processed.stdout }}" dest=../openshift/processed/dc-rocketchat-configmap.json
+  when: rocketchat_configmap_check.stdout_lines|length == 0
+- name: apply rocketchat configmap if it doesn't already exist
+  command: >
+    oc apply -f ../openshift/processed/dc-rocketchat-configmap.json
+  when: rocketchat_configmap_check.stdout_lines|length == 0
+
+## Create the service and route for rocketchat
+- name: find out if rocketchat route exists
+  command: >
+    oc get route -n {{namespace_name}}-{{env}} -l project={{project}}-{{env}} -l subproject=rocketchat
+  register: rocketchat_route_check
+  ignore_errors: yes
+- name: process rocketchat service and route if it doesn't already exist
+  command: >
+    oc process -f ../openshift/dc-rocketchat-serviceroute.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: rocketchat_route_processed
+  when: rocketchat_route_check.stdout_lines|length == 0
+- copy: content="{{ rocketchat_route_processed.stdout }}" dest=../openshift/processed/dc-rocketchat-serviceroute.json
+  when: rocketchat_route_check.stdout_lines|length == 0
+- name: apply rocketchat service and route if it doesn't already exist
+  command: >
+    oc apply -f ../openshift/processed/dc-rocketchat-serviceroute.json
+  when: rocketchat_route_check.stdout_lines|length == 0
+
+## Update the rocketchat
+- name: process rocketchat definition
+  command: >
+    oc process -f ../openshift/dc-rocketchat.yaml --param-file=../openshift/{{env}}.env --ignore-unknown-parameters=true
+  register: rocketchat_processed
+- copy: content="{{ rocketchat_processed.stdout }}" dest=../openshift/processed/dc-rocketchat.json
+- name: apply rocketchat dc
+  command: >
+    oc apply -f ../openshift/processed/dc-rocketchat.json
+
+## Clean up the processed folder
+- name: delete all processed templates
+  file:
+    path: ../openshift/processed
+    state: absent

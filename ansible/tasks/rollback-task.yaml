@@ -1,0 +1,21 @@
+---
+## If rocketchat API test has failed, ask for rollback.
+- pause:
+    prompt: "Would you like to rollback? Enter 'yes' to rollback"
+  register: rollback_check
+
+- pause:
+    prompt: "You are rolling back your development environment. You might wish to consider redeploying the broken deployment for troubleshooting purposes."
+  when: env == "dev"
+
+## Connect to the appropriate namespace
+- name: Connect to the correct namespace ({{namespace_name}}-{{env}})
+  command: >
+    oc project {{namespace_name}}-{{env}}
+
+## Rollback the deployment config
+- name: Rollback to the last working deployment config of rocketchat
+  command: >
+    oc rollout undo dc/rocketchat-{{env}}
+  when: rollback_check.user_input == "yes"
+

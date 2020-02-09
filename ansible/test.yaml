@@ -1,0 +1,10 @@
+- hosts: localhost
+  vars_files:
+    vars.yaml
+  tasks:
+    - name: Test to see if rocketchat is up.
+      include_tasks: tasks/test-task.yaml
+
+
+
+
