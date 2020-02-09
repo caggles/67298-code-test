@@ -46,7 +46,7 @@ pipeline {
             }
             steps {
                 echo "Backing up..."
-                sh "oc create job --from cronjob/backup-mongo-prod backup-mongo-${CHANGE_ID}-${currentBuild.number}"
+                sh "oc create job --from cronjob/backup-mongo-test backup-mongo-${CHANGE_ID}-${currentBuild.number}"
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=prod"
                 echo "Testing..."
