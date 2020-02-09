@@ -30,7 +30,7 @@ pipeline {
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=dev"
                 echo "Testing..."
-                sh "oc project cailey-test && oc get all"
+                sh "curl https://cailey-rocketchat-${env}.pathfinder.gov.bc.ca/api/info"
             }
         }
 
@@ -50,7 +50,7 @@ pipeline {
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=prod"
                 echo "Testing..."
-                sh "oc project cailey-test && oc get all"
+                sh "curl https://cailey-rocketchat-${env}.pathfinder.gov.bc.ca/api/info"
             }
         }
 
