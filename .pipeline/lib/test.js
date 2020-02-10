@@ -1,6 +1,7 @@
 'use strict';
 const {OpenShiftClientX} = require('pipeline-cli');
 const path = require('path');
+const axios = require('axios')
 
 module.exports = (settings)=>{
   const phases = settings.phases;
