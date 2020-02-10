@@ -30,7 +30,7 @@ pipeline {
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=dev"
                 echo "Testing..."
-                sh "cd .pipeline && ./npmw ci && ./npmw run test -- --pr=${CHANGE_ID} --env=dev"
+                //sh "cd .pipeline && ./npmw ci && ./npmw run test -- --pr=${CHANGE_ID} --env=dev"
             }
         }
 
