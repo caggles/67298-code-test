@@ -54,10 +54,10 @@ pipeline {
 
         stage('Cleanup (DEV)') {
             agent { label 'any' }
-            input {
-                message "Should we continue with cleanup of DEV?"
-                ok "Yes!"
-            }
+            //input {
+            //    message "Should we continue with cleanup of DEV?"
+            //    ok "Yes!"
+            //}
             steps {
                 echo "Cleaning up..."
                 sh "oc project cailey-dev"
