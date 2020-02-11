@@ -53,7 +53,7 @@ pipeline {
         }
 
         stage('Cleanup (DEV)') {
-            agent { label 'cleanup' }
+            agent { label 'any' }
             when {
                 expression { return env.CHANGE_TARGET == 'master';}
                 beforeInput true
