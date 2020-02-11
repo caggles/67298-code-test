@@ -57,6 +57,9 @@ To deploy via Jenkins, push a new branch to this github repository and create a 
 There is a backup script baked into the deployment. It operates as a cronjob that runs every day.
 There is also an additional job that is created just before the production deployment which backs up the database as well.
 Currently, the backup plan that is written in-code is not tested and there is no coded recovery. This is something to add before the backup can be considered complete.
+It would also be beneficial to more fully parameterize the code.
+
+The code for the backup container comes from https://github.com/appuio/mongodb-backup and has been edited slightly to suit the requirements of this environment. 
 
 The aim of the backup plan is to ensure that, in the event of the corruption or loss of data, we will be able to recover as much of that data as possible with as little user disruption as possible.
 
@@ -84,17 +87,4 @@ I have chosen to keep 7 days worth of backups because rocketchat is a applicatio
 which means that it's likely at least 6 out of the 7 backups would not bear the problem, whatever it may be. The risk that comes of keeping only 7 days worth of backups is minimal as a result.
 Keeping more copies wouldn't be worth the space.
 
-The only concern with restoring a database from backup is that it usually requires an outage to perform, which impacts users. 
-However, generally speaking, recovery is only required in a situation where there is already an outage or performance problem - data corruption or complete loss of the database.
-Therefore, the most important part of reducing the impact on users from a recovery perspective is simply ensuring that recovery happens as quickly as possible. To that end, ensuring that recovery fully coded is the best way to do that.
-
-## cleanup
-
-`oc delete all -l app=code-test-<suffix>`
-
-`oc delete all,configmap,secret -l app=code-test-<suffix>`
-
-`oc delete all -l app=rocketchat-<suffix>`
-
-`oc delete pvc -l statefulset=mongodb-<suffix>`
 

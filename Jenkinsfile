@@ -4,7 +4,7 @@ pipeline {
         disableResume()
     }
     stages {
-        stage('Build') {
+        stage('Abort Previous') {
             agent { label 'build' }
             steps {
                 script {
@@ -20,8 +20,6 @@ pipeline {
                 script {
                     abortAllPreviousBuildInProgress(currentBuild)
                 }
-                echo "Building ..."
-                //sh "cd .pipeline && ./npmw ci && ./npmw run build -- --pr=${CHANGE_ID}"
             }
         }
         stage('Deploy (DEV)') {
@@ -46,11 +44,26 @@ pipeline {
             }
             steps {
                 echo "Backing up..."
-                //sh "oc create job --from cronjob/backup-mongo-test backup-mongo-${CHANGE_ID}-${currentBuild.number}"
+                sh "oc project cailey-test && oc create job --from cronjob/backup-mongo-test backup-mongo-${CHANGE_ID}-${currentBuild.number}"
                 echo "Deploying ..."
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=prod"
                 echo "Testing..."
                 //sh "cd .pipeline && ./npmw ci && ./npmw run test -- --pr=${CHANGE_ID} --env=prod"
+            }
+        }
+
+        stage('Cleanup (DEV)') {
+            agent { label 'deploy' }
+            input {
+                message "Should we continue with cleanup of DEV?"
+                ok "Yes!"
+            }
+            steps {
+                echo "Cleaning up..."
+                sh "oc project cailey-dev"
+                sh "oc delete all,configmap,secret -l app=code-test-dev-${CHANGE_ID}"
+                sh "oc delete all -l app=rocketchat-dev-${CHANGE_ID}"
+                sh "oc delete pvc -l statefulset=mongodb-dev-${CHANGE_ID}"
             }
         }
 

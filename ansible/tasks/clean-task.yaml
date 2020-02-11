@@ -1,0 +1,28 @@
+---
+## Check to make sure the user really wants to clean up.
+- pause:
+    prompt: "Would you like to clean up your deployment in ${{env}}? Be warned that this will remove it completely. Enter 'yes' to clean up."
+  register: cleanup_check
+
+- pause:
+    prompt: "Would you like to clean up delete your PVCs as well? Enter 'yes' to delete your PVCs in addition to the rest of your deployment."
+  register: pvc_check
+
+## Connect to the appropriate namespace
+- name: Connect to the correct namespace ({{namespace_name}}-{{env}})
+  command: >
+    oc project {{namespace_name}}-{{env}}
+
+## Begin cleanup process
+- name: Clean up part 1
+  command: >
+    oc delete all,configmap,secret -l app=code-test-{{env}}
+  when: cleanup_check.user_input == "yes"
+- name: Clean up part 2
+  command: >
+    oc delete all -l app=rocketchat-{{env}}
+  when: cleanup_check.user_input == "yes"
+- name: Clean up PVCs
+  command: >
+    oc delete pvc -l statefulset=mongodb-{{env}}
+  when: cleanup_check.user_input == "yes" && pvc_check.user_input == "yes"
