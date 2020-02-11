@@ -84,17 +84,4 @@ I have chosen to keep 7 days worth of backups because rocketchat is a applicatio
 which means that it's likely at least 6 out of the 7 backups would not bear the problem, whatever it may be. The risk that comes of keeping only 7 days worth of backups is minimal as a result.
 Keeping more copies wouldn't be worth the space.
 
-The only concern with restoring a database from backup is that it usually requires an outage to perform, which impacts users. 
-However, generally speaking, recovery is only required in a situation where there is already an outage or performance problem - data corruption or complete loss of the database.
-Therefore, the most important part of reducing the impact on users from a recovery perspective is simply ensuring that recovery happens as quickly as possible. To that end, ensuring that recovery fully coded is the best way to do that.
-
-## cleanup
-
-`oc delete all -l app=code-test-<suffix>`
-
-`oc delete all,configmap,secret -l app=code-test-<suffix>`
-
-`oc delete all -l app=rocketchat-<suffix>`
-
-`oc delete pvc -l statefulset=mongodb-<suffix>`
 
