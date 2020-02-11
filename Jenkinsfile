@@ -54,10 +54,6 @@ pipeline {
 
         stage('Cleanup (DEV)') {
             agent { label 'any' }
-            when {
-                expression { return env.CHANGE_TARGET == 'master';}
-                beforeInput true
-            }
             input {
                 message "Should we continue with cleanup of DEV?"
                 ok "Yes!"
