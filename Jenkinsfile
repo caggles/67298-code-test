@@ -4,8 +4,8 @@ pipeline {
         disableResume()
     }
     stages {
-        stage('Build') {
-            agent { label 'build' }
+        stage('Abort Previous') {
+            agent { label 'abort' }
             steps {
                 script {
                     def filesInThisCommitAsString = sh(script:"git diff --name-only HEAD~1..HEAD | grep -v '^.jenkins/' || echo -n ''", returnStatus: false, returnStdout: true).trim()
@@ -20,8 +20,6 @@ pipeline {
                 script {
                     abortAllPreviousBuildInProgress(currentBuild)
                 }
-                echo "Building ..."
-                //sh "cd .pipeline && ./npmw ci && ./npmw run build -- --pr=${CHANGE_ID}"
             }
         }
         stage('Deploy (DEV)') {
@@ -51,6 +49,25 @@ pipeline {
                 sh "cd .pipeline && ./npmw ci && ./npmw run deploy -- --pr=${CHANGE_ID} --env=prod"
                 echo "Testing..."
                 //sh "cd .pipeline && ./npmw ci && ./npmw run test -- --pr=${CHANGE_ID} --env=prod"
+            }
+        }
+
+        stage('Cleanup (DEV)') {
+            agent { label 'cleanup' }
+            when {
+                expression { return env.CHANGE_TARGET == 'master';}
+                beforeInput true
+            }
+            input {
+                message "Should we continue with cleanup of DEV?"
+                ok "Yes!"
+            }
+            steps {
+                echo "Cleaning up..."
+                sh "oc project cailey-dev"
+                sh "oc delete all,configmap,secret -l app=code-test-${env}-${CHANGE_ID}"
+                sh "oc delete all -l app=rocketchat-${env}-${CHANGE_ID}"
+                sh "oc delete pvc -l statefulset=mongodb-${env}-${CHANGE_ID}"
             }
         }
 
