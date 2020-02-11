@@ -57,6 +57,9 @@ To deploy via Jenkins, push a new branch to this github repository and create a 
 There is a backup script baked into the deployment. It operates as a cronjob that runs every day.
 There is also an additional job that is created just before the production deployment which backs up the database as well.
 Currently, the backup plan that is written in-code is not tested and there is no coded recovery. This is something to add before the backup can be considered complete.
+It would also be beneficial to more fully parameterize the code.
+
+The code for the backup container comes from https://github.com/appuio/mongodb-backup and has been edited slightly to suit the requirements of this environment. 
 
 The aim of the backup plan is to ensure that, in the event of the corruption or loss of data, we will be able to recover as much of that data as possible with as little user disruption as possible.
 
