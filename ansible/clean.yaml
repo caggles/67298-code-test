@@ -1,0 +1,6 @@
+- hosts: localhost
+  vars_files:
+    vars.yaml
+  tasks:
+    - name: Cleanup rocketchat deployment
+      include_tasks: tasks/clean-task.yaml
