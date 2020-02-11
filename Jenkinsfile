@@ -54,16 +54,16 @@ pipeline {
 
         stage('Cleanup (DEV)') {
             agent { label 'deploy' }
-            //input {
-            //    message "Should we continue with cleanup of DEV?"
-            //    ok "Yes!"
-            //}
+            input {
+                message "Should we continue with cleanup of DEV?"
+                ok "Yes!"
+            }
             steps {
                 echo "Cleaning up..."
                 sh "oc project cailey-dev"
-                sh "oc delete all,configmap,secret -l app=code-test-${env}-${CHANGE_ID}"
-                sh "oc delete all -l app=rocketchat-${env}-${CHANGE_ID}"
-                sh "oc delete pvc -l statefulset=mongodb-${env}-${CHANGE_ID}"
+                sh "oc delete all,configmap,secret -l app=code-test-dev-${CHANGE_ID}"
+                sh "oc delete all -l app=rocketchat-dev-${CHANGE_ID}"
+                sh "oc delete pvc -l statefulset=mongodb-dev-${CHANGE_ID}"
             }
         }
 
